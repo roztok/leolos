@@ -19,7 +19,7 @@ namespace Leolos\MysqlDb;
  * MysqlError
  * @author Martin Vondra <martin.vondra@email.cz>
  */
-class MysqlError extends ErrorException {
+class MysqlError extends \ErrorException {
 
 	/**
 	 * public __construct($message, $code)
@@ -47,10 +47,10 @@ class MysqlError extends ErrorException {
  */
 interface MysqlDbLogger {
 	
-	public function info($msg) {}
-	public function debug($msg) {}
-	public function warning($msg) {}
-	public function error($msg) {}
+	public function info($msg);
+	public function debug($msg);
+	public function warning($msg);
+	public function error($msg);
 }
 
 
@@ -95,7 +95,7 @@ class MysqlDbConfig {
 	 * constructor
 	 * set default properties
 	 */
-	public function __construct() {
+	public function __construct(& $parser=Null) {
 		$this->setHostname("localhost");
 		$this->setPort(3306);
 		$this->setEncoding("utf8");
@@ -103,6 +103,16 @@ class MysqlDbConfig {
 		$this->setConnectionTimeOut(2);
 		$this->setAutocommit(False);
 		$this->m_logger = new stdLogger();
+
+		if ($parser) {
+            $this->setHostname($parser->get("mysql", "Host"));
+            $this->setPort($parser->getInt("mysql", "Port", 3306));
+            $this->setEncoding($parser->get("mysql", "Encoding", "utf8"));
+            $this->setSocket($parser->get("mysql", "Socket", "/var/run/mysqld/mysqld.sock"));
+            $this->setUser($parser->get("mysql", "User"));
+            $this->setPassword($parser->get("mysql", "Password"));
+            $this->setDatabaseName($parser->get("mysql", "Database"));
+        }
 	}
 
 	public function getLogger() {
@@ -214,7 +224,8 @@ class MysqlDb {
 		$this->socket = $config->getSocket();
 		$this->connectionTimeOut = $config->getConnectionTimeOut();
 		$this->autocommit = $config->getAutocommit();
-		$this->connect();
+		$this->logger = $config->getLogger();
+		//$this->connect();
 		$this->inTransaction = False;
 		$this->explainMode = False;
 	}
@@ -226,10 +237,10 @@ class MysqlDb {
 	 */
 	private function callQuery($query = Null) {
 		if ($query) {
-			$this->m_logger->info($query);
+			$this->logger->info($query);
 			$this->connection->real_query($query);
 		} else {
-			$this->m_logger->info($this->query);
+			$this->logger->info($this->query);
 			$this->connection->real_query($this->query);
 		}
 		return $this->connection->store_result();
@@ -272,25 +283,25 @@ class MysqlDb {
 					stristr($row->Extra, "filesort") ||
 					stristr($row->Extra, "buffer")) {
 				# log Extra property of explain as Warning
-				$this->m_logger->warning("Explain found: ".row->Extra);
+				$this->logger->warning("Explain found: ".$row->Extra);
 			}
 		}
 	}
 	
 	/**
-	 * explainModeEnable()
+	 * enableExplainMode()
 	 * Set explain mode to enable
 	 * All queries will be explained, log warning when find some troubles
 	 */
-	public function explainModeEnable() {
+	public function enableExplainMode() {
 		$this->explainMode = True;
 	}
 	
 	/**
-	 * explainModeDisable()
+	 * disableExplainMode()
 	 * Set explain mode to disable
 	 */
-	public function explainModeDisable() {
+	public function disableExplainMode() {
 		$this->explainMode = False;
 	}
 
@@ -419,7 +430,7 @@ class MysqlDb {
 	 * Rollback any uncommited transactions and free the connection
 	 *
 	 */
-	private function __destruct() {
+	public function __destruct() {
 		/* rollback all uncomitted transactions */
 		$this->rollback();
 		/* leave connection */
