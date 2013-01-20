@@ -436,4 +436,8 @@ class MysqlDb {
 		/* leave connection */
 		$this->connection->close();
 	}
+	
+	public function __wakeup() {
+        $this->connect();
+    }
 }

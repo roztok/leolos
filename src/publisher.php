@@ -239,9 +239,8 @@ class Dispatcher {
 
     private function checkRequest() {
         # check request
-        if($this->handler->checkFlag and $check) {
-            $this->check = $check;
-            $this->check->check($this);
+        if($this->handler->checkFlag and $this->check) {
+            $this->check->check($this->request);
         }
     }
 }
