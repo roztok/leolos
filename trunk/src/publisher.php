@@ -1,6 +1,6 @@
 <?php
 /*
- * 
+ *
  * Copyright (c) 2012, Martin Vondra
  * All Rights Reserved.
  * DESCRIPTION
@@ -28,13 +28,13 @@ include $includePath."importer.php";
 * reguest handler by php function
 */
 class FunctionHandler {
-    
+
     public $uri;
     public $methodName;
     public $allowedMethod;
     public $includes;
     public $checkFlag;
-    
+
 
     /**
     * Constructor
@@ -64,7 +64,7 @@ class Request {
     private $PATH;
     public $form;
     public $config;
-    
+
     /**
     * Constructor
     *
@@ -78,7 +78,7 @@ class Request {
         # create new formfield instance to parse URL fields
         $this->form = new Fieldstorage\FormField($this->METHOD);
     }
-    
+
     /**
     * setAplicationConfigObject(mixed $config)
     * hold config object/array
@@ -87,13 +87,13 @@ class Request {
     public function setAplicationConfigObject($config) {
         $this->config = $config;
     }
-    
+
     /**
     * getPath()
     * @return string
     */
     public function getPath() { return $this->PATH; }
-    
+
     /**
     * getMethod()
     * @return string
@@ -105,8 +105,8 @@ class Request {
 /**
 * Dispatcher
 * @author Martin Vondra <martin.vondra@email.cz>
-* Custom main request handler. 
-* 
+* Custom main request handler.
+*
 */
 class Dispatcher {
 	protected $dispatchTable;
@@ -114,10 +114,10 @@ class Dispatcher {
 	private $handler;
 	private $request;
 
-	
+
 	/**
 	* Constructor
-	* 
+	*
 	*/
 	public function __construct() {
         $this->dispatchTable = array();
@@ -127,18 +127,18 @@ class Dispatcher {
     /**
     * setAplicationConfigObject(mixed $config)
     * hold config object/array
-    * @param mixed $config 
+    * @param mixed $config
     */
     public function setAplicationConfigObject($config) {
         if ($config) {
             $this->request->setAplicationConfigObject($config);
         }
     }
-    
+
     /**
     * setAplicationCheckObject(object $check)
-    * hold check object- object whit public method check() which is usefull 
-    * for some rutines as autorization, rights checks etc.  
+    * hold check object- object whit public method check() which is usefull
+    * for some rutines as autorization, rights checks etc.
     * @param object $check
     */
     public function setAplicationCheckObject($check) {
@@ -158,7 +158,7 @@ class Dispatcher {
 
     /**
     * handleRequest()
-    * 
+    *
     *
     */
     public function handleRequest() {
@@ -177,7 +177,7 @@ class Dispatcher {
 
 		$this->checkRequest();
 
-		try {            
+		try {
 			$startTime = microtime();
 			call_user_func($this->handler->methodName, $this->request);
 			$endtime = microtime();
@@ -185,7 +185,7 @@ class Dispatcher {
 		} catch (\Exception $e) {
 			/* known exception from dispatchTable */
 			/*if(isset($path[4]) && array_key_exists(get_class($e), $path[4])) {
-				/* handle exception myself by handler 
+				/* handle exception myself by handler
 				return call_user_func($path[4][get_class($e)], $this);
 			} else */
 			if(method_exists($e, "handleRequest")) {
@@ -228,7 +228,7 @@ class Dispatcher {
 
     private function checkHTTPMethodAllowed() {
         # checking HTTP method
-        if ($this->request->getMethod() != $this->handler->allowedMethod and 
+        if ($this->request->getMethod() != $this->handler->allowedMethod and
             $this->handler->allowedMethod != "GET|POST") {
             Status\Status::METHOD_NOT_ALLOWED();
             return False;
@@ -240,7 +240,7 @@ class Dispatcher {
     private function checkRequest() {
         # check request
         if($this->handler->checkFlag and $this->check) {
-            $this->check->check($this->request);
+            $this->check->checkRequest($this->request);
         }
     }
 }
