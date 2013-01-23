@@ -175,10 +175,9 @@ class Dispatcher {
         # import all modules
 		Importer::import($this->handler->includes);
 
-		$this->checkRequest();
-
 		try {
 			$startTime = microtime();
+			$this->checkRequest();
 			call_user_func($this->handler->methodName, $this->request);
 			$endtime = microtime();
 			error_log('leolos::Publisher:callTime::'.($endtime-$startTime).'s');
