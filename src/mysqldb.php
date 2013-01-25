@@ -273,7 +273,10 @@ class MysqlDb {
             } elseif ($args[$i] === Null) {
                 /*translate Null type to db NULL*/
                 $args[$i] = "NULL";
+            } elseif ($args[$i] === False) {
+                $args[$i] = 0;
             }
+
             array_push($converted_args, $args[$i]);
         }
         return vsprintf($query_part, $converted_args);
