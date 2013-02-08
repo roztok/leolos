@@ -37,7 +37,7 @@ class MysqlError extends \ErrorException {
         * Text description of exception
         */
     public function __toString() {
-        return "<MysqlError: [".$this->code."]:".$this->message.".>\n";
+        return "<".get_class($this).": [".$this->code."]:".$this->message.".>\n";
     }
 }
 
