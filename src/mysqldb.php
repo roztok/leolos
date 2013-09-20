@@ -322,7 +322,7 @@ class MysqlDb {
         * Method set connection timeout and encoding type
         * @throws MysqlError
         */
-    public function connect() {
+    public function connect($reconnectFlag = True) {
         /* init mysqli object */
         $this->connection = mysqli_init();
 
@@ -340,8 +340,12 @@ class MysqlDb {
         }
         /* check connection */
         if (mysqli_connect_errno()) {
-            throw new MysqlError(mysqli_connect_error(),
+            if ($reconnectFlag) {
+                $this->connect(False);
+            } else {
+                throw new MysqlError(mysqli_connect_error(),
                     mysqli_connect_errno());
+            }
         }
 
         /* setting charset */
