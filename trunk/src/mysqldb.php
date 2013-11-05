@@ -515,6 +515,7 @@ abstract class DBClass {
     }
 }
 
+
 class ListObject {
 
     protected $sqlConn;
@@ -563,7 +564,7 @@ class ListObject {
     
     protected function getOrder() {
         if( $this->order ) {
-            return "ORDER ".$this->order." ".$this->direction;
+            return "ORDER BY ".$this->order." ".$this->direction;
         } else {
             return "";
         }
@@ -572,13 +573,24 @@ class ListObject {
     public function load() {
         $this->sqlConn->begin();
         $sql = "SELECT * FROM `".$this->dbTableName."` ".$this->join." ".$this->getWhere();
-        $sql .= " ".$this->getOrder." ".$this->getLimit();
+        $sql .= " ".$this->getOrder()." ".$this->getLimit();
         $res = $this->sqlConn->execute($sql);
         while ($row = $res->fetch_object()) {
             $item = new $this->itemClassName($this->sqlConn);
             $item->load($row);
             $this->list[] = $item;
         }
+    }
+    
+    /**
+    * count(*) use indexes, so could be faster than SQL_CALC_FOUND_ROWS
+    */
+    public function getCount() {
+        $this->sqlConn->begin();
+        $res = $this->sqlConn->execute("SELECT count(*) AS count FROM `".$this->dbTableName.
+            "` ".$this->join." ".$this->getWhere());
+        $row = $res->fetch_object();
+        return $row->count;
     }
 
     public function toTeng($teng, $res) {
