@@ -27,11 +27,12 @@ namespace Leolos\XMLRPCServer;
 class XMLRPCServerConfig {
     private $m_encoding;
     private $m_helpFile;
- 
+
     public function __construct(& $parser=Null) {
         if ($parser) {
             $this->setEncoding($parser->get("xmlrpcserver", "Encoding"));
             $this->setHelpFile($parser->get("xmlrpcserver", "HelpFile"));
+        }
     }
 
     public function setEncoding($encoding) { $this->m_encoding = $encoding; }
@@ -70,7 +71,7 @@ class XMLRPCServer {
 		}
 	}
 
-	
+
 	/**
 	* void registerMethod(methodName, callback)
 	* add method to server interface
@@ -85,14 +86,14 @@ class XMLRPCServer {
 		xmlrpc_server_register_method($this->m_serverRes, $methodName, $callback);
 	}
 
-	
+
 	/**
 	*
 	*
 	*/
 	public function callMethod() {
-		$response = xmlrpc_server_call_method($this->m_serverRes, 
-						file_get_contents('php://input','r'), '', 
+		$response = xmlrpc_server_call_method($this->m_serverRes,
+						file_get_contents('php://input','r'), '',
 						array(
 						"output_type" => "xml",
 						"verbosity" => "pretty",
