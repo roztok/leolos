@@ -18,7 +18,7 @@ namespace Leolos;
 class Dispatcher {
 	protected $dispatchTable;
 	protected $check;
-    protected $init;
+        protected $init;
 	private $handler;
 	private $request;
 
